@@ -4,21 +4,21 @@ from gtp import gtp, GtpException
 import sys
 from gomill import sgf, sgf_moves
 from sys import exit,argv
-from Tkinter import *
+from tkinter import *
 import sys
 import os
 
-import ConfigParser
+import configparser
 
 from time import sleep
 import os
 import threading
-import ttk
+import tkinter.ttk as ttk
 
 from toolbox import *
 from toolbox import _
 
-import tkMessageBox
+import tkinter.messagebox
 
 
 class LeelaZeroAnalysis():
@@ -174,7 +174,7 @@ def leela_zero_starting_procedure(sgf_g,profile="slow",silentfail=False):
 	elif profile=="fast":
 		timepermove_entry="FastTimePerMove"
 
-	Config = ConfigParser.ConfigParser()
+	Config = configparser.ConfigParser()
 	Config.read(config_file)
 
 	leela_zero=bot_starting_procedure("LeelaZero","Leela Zero",Leela_Zero_gtp,sgf_g,profile,silentfail)
@@ -209,7 +209,7 @@ class LiveAnalysis(LeelaZeroAnalysis,LiveAnalysisBase):
 
 import ntpath
 import subprocess
-import threading, Queue
+import threading,  queue
 
 class Position(dict):
 	def __init__(self):
@@ -257,7 +257,7 @@ class Leela_Zero_gtp(gtp):
 		self.process=subprocess.Popen(command,cwd=leela_zero_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
 		
-		self.stderr_queue=Queue.Queue()
+		self.stderr_queue=queue.Queue()
 		
 		threading.Thread(target=self.consume_stderr).start()
 	def get_leela_zero_final_score(self):
@@ -380,7 +380,7 @@ if __name__ == "__main__":
 	else:
 		try:
 			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation="])
-		except Exception, e:
+		except Exception as e:
 			show_error(str(e)+"\n"+usage)
 			sys.exit()
 		

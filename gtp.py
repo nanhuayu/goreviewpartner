@@ -1,5 +1,5 @@
 import subprocess
-import threading, Queue
+import threading, queue
 
 from time import sleep,time
 
@@ -11,10 +11,11 @@ class GtpException(Exception):
 class gtp():
 	def __init__(self,command):
 		self.c=1
+		print(command)
 		self.process=subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
 		self.command_line=command[0]+" "+" ".join(command[1:])
-		self.stderr_queue=Queue.Queue()
+		self.stderr_queue=queue.Queue()
 		
 		threading.Thread(target=self.consume_stderr).start()
 		
@@ -29,7 +30,7 @@ class gtp():
 				else:
 					log("leaving consume_stderr thread")
 					return
-			except Exception, e:
+			except Exception as e:
 				import sys, os
 				exc_type, exc_obj, exc_tb = sys.exc_info()
 				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -42,16 +43,19 @@ class gtp():
 	
 	def write(self,txt):
 		try:
-			self.process.stdin.write(txt+"\n")
-		except Exception, e:
+			print('txt:',txt)
+			self.process.stdin.write(txt.encode()+b'\r\n')
+			self.process.stdin.flush() 
+		except Exception as e:
 			log("Error while writting to stdin\n"+str(e))
 		#self.process.stdin.write(str(self.c)+" "+txt+"\n")
 		self.c+=1
 
 	def readline(self):
-		answer=self.process.stdout.readline()
+		answer=self.process.stdout.readline().decode('utf8')
+		print('answer:',answer)
 		while answer in ("\n","\r\n","\r"):
-			answer=self.process.stdout.readline()
+			answer=self.process.stdout.readline().decode('utf8')
 		return answer
 	
 	####hight level function####
@@ -97,7 +101,7 @@ class gtp():
 		answer=self.readline().strip()
 		try:
 			return " ".join(answer.split(" ")[1:])
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in name()\nanswer='"+answer+"'\n"+str(e))
 	
 	def version(self):
@@ -105,7 +109,7 @@ class gtp():
 		answer=self.readline().strip()
 		try:
 			return answer.split(" ")[1]
-		except Exception,e:
+		except Exception as e:
 			raise GtpException("GtpException in version()\nanswer='"+answer+"'\n"+str(e))
 
 	def play_black(self):
@@ -113,7 +117,7 @@ class gtp():
 		answer=self.readline().strip()
 		try:
 			return answer.split(" ")[1]
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in genmove_black()\nanswer='"+answer+"'\n"+str(e))
 
 		
@@ -122,7 +126,7 @@ class gtp():
 		answer=self.readline().strip()
 		try:
 			return answer.split(" ")[1]
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in genmove_white()\nanswer='"+answer+"'\n"+str(e))
 
 	def set_free_handicap(self,positions):
@@ -137,7 +141,7 @@ class gtp():
 				return True
 			else:
 				return False	
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in set_free_handicap()\nanswer='"+answer+"'\n"+str(e))
 	
 	def undo_resign(self):
@@ -152,7 +156,7 @@ class gtp():
 				return True
 			else:
 				return False			
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in undo()\nanswer='"+answer+"'\n"+str(e))
 
 	def countlib(self,move):
@@ -179,7 +183,7 @@ class gtp():
 		try:
 			if answer[0]=="=":return True
 			else:return False
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in set_time()\nanswer='"+answer+"'\n"+str(e))
 
 	def quit(self):

@@ -4,16 +4,16 @@ from gtp import gtp, GtpException
 import sys
 from gomill import sgf, sgf_moves
 from sys import exit,argv
-from Tkinter import *
+from tkinter import *
 import sys
 import os
 
-import ConfigParser
+import configparser
 
 
 import time, os
 
-import ttk
+import tkinter.ttk as ttk
 
 
 from toolbox import *
@@ -45,7 +45,7 @@ def get_full_sequence(worker,current_color,deepness):
 		for u in range(undos):
 			worker.undo()
 		return [sequence.strip(),es]
-	except Exception, e:
+	except Exception as e:
 		return e
 
 
@@ -361,7 +361,7 @@ class GnuGoSettings(Frame):
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
 		log("Initializing GnuGo setting interface")
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		bot="GnuGo"
 		row=0
@@ -462,7 +462,7 @@ class GnuGoSettings(Frame):
 		
 	def save(self):
 		log("Saving GnuGo settings")
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		
 		bot="GnuGo"
@@ -525,7 +525,7 @@ if __name__ == "__main__":
 	else:
 		try:
 			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation="])
-		except Exception, e:
+		except Exception as e:
 			show_error(str(e)+"\n"+usage)
 			sys.exit()
 		

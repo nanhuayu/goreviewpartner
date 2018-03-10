@@ -16,11 +16,11 @@ def log(*args):
 			except:
 				pass
 			try:
-				print arg,
+				print (arg,)
 			except:
-				print "?"*len(arg),
+				print ("?"*len(arg),)
 		except:
-			print "["+type()+"]",
+			print ("["+type()+"]",)
 	print
 
 def linelog(*args):
@@ -35,17 +35,17 @@ def linelog(*args):
 			except:
 				pass
 			try:
-				print arg,
+				print (arg,)
 			except:
-				print "?"*len(arg),
+				print ("?"*len(arg),)
 		except:
-			print "["+type()+"]",
+			print ("["+type()+"]",)
 
-import tkMessageBox
+import tkinter.messagebox
 
 def show_error(txt,parent=None):
 	try:
-		tkMessageBox.showerror(_("Error"),txt,parent=parent)
+		tkinter.messagebox.showerror(_("Error"),txt,parent=parent)
 		log("ERROR: "+txt)
 	except:
 		log("ERROR: "+txt)
@@ -124,10 +124,10 @@ def ij2sgf(m):
 		raise AbortedException("Cannot convert grid coordinates "+str(m)+" to SGF coordinates!")
 
 from gomill import sgf, sgf_moves
-from Tkinter import Tk, Label, Frame, StringVar, Radiobutton, N,W,E, Entry, END, Button, Toplevel, Listbox, OptionMenu
+from tkinter import Tk, Label, Frame, StringVar, Radiobutton, N,W,E, Entry, END, Button, Toplevel, Listbox, OptionMenu
 import sys
 import os
-import urllib2
+import urllib
 
 
 class DownloadFromURL(Frame):
@@ -162,7 +162,7 @@ class DownloadFromURL(Frame):
 
 		log("Downloading",url)
 
-		r=urllib2.Request(url,headers=headers)
+		r=urllib.Request(url,headers=headers)
 		try:
 			h=urllib2.urlopen(r)
 		except:
@@ -230,10 +230,10 @@ class WriteException(Exception):
 def write_rsgf(filename,sgf_content):
 	try:
 		log("Saving RSGF file",filename)
-		new_file=open(filename,'w')
+		new_file=open(filename,'w',encoding='utf8')
 		new_file.write(sgf_content)
 		new_file.close()
-	except Exception,e:
+	except Exception as e:
 		log("Could not save the RSGF file",filename)
 		log(e)
 		raise WriteException(_("Could not save the RSGF file: ")+filename+"\n"+str(e))
@@ -241,10 +241,10 @@ def write_rsgf(filename,sgf_content):
 def write_sgf(filename,sgf_content):
 	try:
 		log("Saving SGF file",filename)
-		new_file=open(filename,'w')
+		new_file=open(filename,'w',encoding='utf8')
 		new_file.write(sgf_content)
 		new_file.close()
-	except Exception,e:
+	except Exception as e:
 		log("Could not save the SGF file",filename)
 		log(e)
 		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
@@ -256,7 +256,7 @@ def open_sgf(filename):
 		g = sgf.Sgf_game.from_string(clean_sgf(txt.read()))
 		txt.close()
 		return g
-	except Exception,e:
+	except Exception as e:
 		log("Could not open the SGF file",filename)
 		log(e)
 		raise WriteException(_("Could not save the SGF file: ")+filename+"\n"+str(e))
@@ -316,8 +316,8 @@ def check_selection(selection,nb_moves):
 					b=a
 				if a<=b and a>0 and b<=nb_moves:
 					move_selection.extend(range(a,b+1))
-			except Exception, e:
-				print e
+			except Exception as e:
+				print (e)
 				return False
 	move_selection=list(set(move_selection))
 	move_selection=sorted(move_selection)
@@ -370,7 +370,8 @@ class RangeSelector(Frame):
 			bot_names=[bot['name']+value[bot['profile']] for bot in bots]
 			self.bot_selection=StringVar()
 
-			apply(OptionMenu,(self,self.bot_selection)+tuple(bot_names)).grid(row=row,column=2,sticky=W)
+			#apply(OptionMenu,(self,self.bot_selection)+tuple(bot_names)).grid(row=row,column=2,sticky=W)
+			OptionMenu(self,self.bot_selection,*tuple(bot_names)).grid(row=row,column=2,sticky=W)
 			self.bot_selection.set(bot_names[0])
 
 			row+=1
@@ -389,7 +390,8 @@ class RangeSelector(Frame):
 			v+=1
 		self.variation_selection.set(options[0])
 
-		apply(OptionMenu,(self,self.variation_selection)+tuple(options)).grid(row=row,column=2,sticky=W)
+		#apply(OptionMenu,(self,self.variation_selection)+tuple(options)).grid(row=row,column=2,sticky=W)
+		OptionMenu(self,self.variation_selection,*tuple(options)).grid(row=row,column=2,sticky=W)
 
 		row+=1
 		Label(self,text="").grid(row=row,column=1)
@@ -474,7 +476,7 @@ class RangeSelector(Frame):
 		try:
 			komi=self.g.get_komi()
 			komi_entry.insert(0, str(komi))
-		except Exception, e:
+		except Exception as e:
 			log("Error while reading komi value, please check:\n"+str(e))
 			show_error(_("Error while reading komi value, please check:")+"\n"+str(e))
 			komi_entry.insert(0, "0")
@@ -483,7 +485,7 @@ class RangeSelector(Frame):
 		Label(self,text="").grid(row=row,column=1)
 		row+=1
 
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 
 		Label(self,text=_("Stop the analysis if the bot resigns")).grid(row=row,column=1,sticky=W)
@@ -590,10 +592,10 @@ class RangeSelector(Frame):
 		log(variation)
 
 		####################################
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
-		Config.set("Analysis","StopAtFirstResign",self.StopAtFirstResign.get())
-		Config.write(open(config_file,"w"))
+		Config.set("Analysis","StopAtFirstResign",str(self.StopAtFirstResign.get()))
+		Config.write(open(config_file,"w",encoding='utf8'))
 
 		####################################
 		self.parent.destroy()
@@ -611,11 +613,11 @@ class RangeSelector(Frame):
 
 
 import threading
-import Queue
+import queue
 import time
-import ConfigParser
-from Tkinter import *
-import ttk
+import configparser
+from tkinter import *
+import tkinter.ttk as ttk
 
 
 def guess_color_to_play(move_zero,move_number):
@@ -629,7 +631,7 @@ def guess_color_to_play(move_zero,move_number):
 		return player_color
 
 	if one_move is move_zero:
-		print 'move_zero.get("PL")=',move_zero.get("PL")
+		print ('move_zero.get("PL")=',move_zero.get("PL"))
 		if move_zero.get("PL").lower()=="b":
 			return "w"
 		if move_zero.get("PL").lower()=="w":
@@ -638,10 +640,10 @@ def guess_color_to_play(move_zero,move_number):
 	previous_move_color=guess_color_to_play(move_zero,move_number-1)
 
 	if previous_move_color.lower()=='b':
-		print "guess_color_to_play(%i)=%s"%(move_number,"w")
+		print ("guess_color_to_play(%i)=%s"%(move_number,"w"))
 		return "w"
 	else:
-		print "guess_color_to_play(%i)=%s"%(move_number,"b")
+		print ("guess_color_to_play(%i)=%s"%(move_number,"b"))
 		return "b"
 
 class LiveAnalysisBase():
@@ -650,9 +652,9 @@ class LiveAnalysisBase():
 		self.filename=filename
 		self.profile=profile
 		self.bot=self.initialize_bot()
-		self.update_queue=Queue.PriorityQueue()
-		self.label_queue=Queue.Queue()
-		self.best_moves_queue=Queue.Queue()
+		self.update_queue=queue.PriorityQueue()
+		self.label_queue=queue.Queue()
+		self.best_moves_queue=queue.Queue()
 
 		self.move_zero=self.g.get_root()
 
@@ -662,7 +664,7 @@ class LiveAnalysisBase():
 		log("size of the tree:", size)
 		self.size=size
 
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
 
@@ -702,7 +704,7 @@ class LiveAnalysisBase():
 				continue
 
 			if type(msg)==type("undo xxx"):
-				print "msg=",msg
+				print ("msg=",msg)
 				move_to_undo=int(msg.split()[1])
 				#move_to_undo=int(priority+1)
 				log("received undo msg for move",move_to_undo,"and beyong")
@@ -771,7 +773,7 @@ class RunAnalysisBase(Frame):
 		self.parent=parent
 		self.filename=filename
 		self.move_range=move_range
-		self.update_queue=Queue.Queue()
+		self.update_queue=queue.Queue()
 		self.intervals=intervals
 		self.variation=variation
 		self.komi=komi
@@ -803,7 +805,7 @@ class RunAnalysisBase(Frame):
 
 		try:
 			self.bot=self.initialize_bot()
-		except Exception,e:
+		except Exception as e:
 			self.error=_("Error while initializing the GTP bot:")+"\n"+str(e)
 			self.abort()
 			return
@@ -817,13 +819,13 @@ class RunAnalysisBase(Frame):
 		if parent!="no-gui":
 			try:
 				self.initialize_UI()
-			except Exception,e:
+			except Exception as e:
 				self.error=_("Error while initializing the graphical interface:")+"\n"+str(e)
 				self.abort()
 				return
 			self.root.after(500,self.follow_analysis)
 
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		self.maxvariations=int(Config.get("Analysis", "maxvariations"))
 
@@ -919,7 +921,7 @@ class RunAnalysisBase(Frame):
 			remaining_s=remaining_s-3600*remaining_h
 			remaining_m=remaining_s/60
 			remaining_s=remaining_s-60*remaining_m
-			if self.time_per_move<>0:
+			if self.time_per_move:
 				self.lab2.config(text=_("Remaining time: %ih, %imn, %is")%(remaining_h,remaining_m,remaining_s))
 			self.lab1.config(text=_("Currently at move %i/%i")%(self.current_move,self.max_move))
 			self.pb.step()
@@ -954,7 +956,7 @@ class RunAnalysisBase(Frame):
 		screen_width = app.winfo_screenwidth()
 		screen_height = app.winfo_screenheight()
 
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read("config.ini")
 
 		display_factor=.5
@@ -962,7 +964,7 @@ class RunAnalysisBase(Frame):
 			display_factor=float(Config.get("Review", "GobanScreenRatio"))
 		except:
 			Config.set("Review", "GobanScreenRatio",display_factor)
-			Config.write(open("config.ini","w"))
+			Config.write(open("config.ini","w",encoding='utf8'))
 
 		width=int(display_factor*screen_width)
 		height=int(display_factor*screen_height)
@@ -1031,7 +1033,7 @@ class RunAnalysisBase(Frame):
 
 		try:
 			write_rsgf(self.filename[:-4]+".rsgf",self.g.serialise())
-		except Exception,e:
+		except Exception as e:
 			show_error(str(e))
 			self.lab1.config(text=_("Aborted"))
 			self.lab2.config(text="")
@@ -1044,7 +1046,7 @@ class RunAnalysisBase(Frame):
 		first_comment+="\n"+("Komi: %0.1f"%self.komi)
 		first_comment+="\n"+("Intervals: %s"%self.intervals)
 
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 
 		if Config.getboolean('Analysis', 'SaveCommandLine'):
@@ -1078,7 +1080,7 @@ class BotOpenMove():
 				self.okbot=True
 			else:
 				self.okbot=False
-		except Exception, e:
+		except Exception as e:
 			log("Could not launch "+self.name)
 			log(e)
 			self.okbot=False
@@ -1134,7 +1136,7 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 
 	size=sgf_g.get_size()
 
-	Config = ConfigParser.ConfigParser()
+	Config = configparser.ConfigParser()
 	Config.read(config_file)
 
 	try:
@@ -1150,15 +1152,16 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 		log("Starting "+bot_name+"...")
 		try:
 			bot_command_line=[Config.get(bot_name, command_entry)]+Config.get(bot_name, parameters_entry).split()
+			print(bot_command_line)
 			bot=bot_gtp(bot_command_line)
-		except Exception,e:
+		except Exception as e:
 			raise LaunchingException((_("Could not run %s using the command from config.ini file:")%bot_name)+"\n"+Config.get(bot_name, command_entry)+" "+Config.get(bot_name, parameters_entry)+"\n"+str(e))
 
 		log(bot_name+" started")
 		log(bot_name+" identification through GTP...")
 		try:
 			answer=bot.name()
-		except Exception, e:
+		except Exception as e:
 			raise LaunchingException((_("%s did not replied as expected to the GTP name command:")%bot_name)+"\n"+str(e))
 
 
@@ -1170,7 +1173,7 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 		log("Checking version through GTP...")
 		try:
 			bot_version=bot.version()
-		except Exception, e:
+		except Exception as e:
 			raise LaunchingException((_("%s did not replied as expected to the GTP version command:")%bot_name)+"\n"+str(e))
 
 		log("Version: "+bot_version)
@@ -1218,7 +1221,7 @@ def bot_starting_procedure(bot_name,bot_gtp_name,bot_gtp,sgf_g,profile="slow",si
 
 		bot.bot_name=bot_gtp_name
 		bot.bot_version=bot_version
-	except LaunchingException,e:
+	except LaunchingException as e:
 		if silentfail:
 			log(e)
 		else:
@@ -1376,7 +1379,7 @@ def parse_command_line(filename,argv):
 	if not found:
 		try:
 			komi=g.get_komi()
-		except Exception, e:
+		except Exception as e:
 			msg="Error while reading komi value, please check:\n"+str(e)
 			msg+="\nPlease indicate komi using --komi parameter"
 			log(msg)
@@ -1423,7 +1426,7 @@ config_file=os.path.join(os.path.abspath(pathname),"config.ini")
 log('Config file:', config_file)
 
 log("Reading language setting from config file")
-Config = ConfigParser.ConfigParser()
+Config = configparser.ConfigParser()
 Config.read(config_file)
 lang=Config.get("General","Language")
 
@@ -1443,7 +1446,7 @@ if not lang:
 		lang="en"
 	log("Saving the lang parameter in config.ini")
 	Config.set("General","Language",lang)
-	Config.write(open(config_file,"w"))
+	Config.write(open(config_file,"w",encoding='utf8'))
 else:
 	if lang in available_translations:
 		log("lang="+lang)
@@ -1453,7 +1456,7 @@ else:
 		lang="en"
 		log("Saving the lang parameter in config.ini")
 		Config.set("General","Language",lang)
-		Config.write(open(config_file,"w"))
+		Config.write(open(config_file,"w",encoding='utf8'))
 
 translations={}
 def prepare_translations():
@@ -1532,9 +1535,9 @@ def slow_profile_bots():
 	from aq_analysis import AQ
 	from leela_zero_analysis import LeelaZero
 
-	import ConfigParser
+	import configparser
 
-	Config = ConfigParser.ConfigParser()
+	Config = configparser.ConfigParser()
 	Config.read(config_file)
 
 	bots=[]
@@ -1551,9 +1554,9 @@ def fast_profile_bots():
 	from aq_analysis import AQ
 	from leela_zero_analysis import LeelaZero
 
-	import ConfigParser
+	import configparser
 
-	Config = ConfigParser.ConfigParser()
+	Config = configparser.ConfigParser()
 	Config.read(config_file)
 
 	bots=[]
@@ -1571,9 +1574,9 @@ def get_available(use):
 	from aq_analysis import AQ
 	from leela_zero_analysis import LeelaZero
 
-	import ConfigParser
+	import configparser
 
-	Config = ConfigParser.ConfigParser()
+	Config = configparser.ConfigParser()
 	Config.read(config_file)
 
 	bots=[]
@@ -1605,7 +1608,7 @@ try:
 	import wx
 	wxApp = wx.App(None)
 	def open_sgf_file(parent=None):
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		initialdir = Config.get("General","sgffolder")
 		dialog = wx.FileDialog(None,_('Select a file'), defaultDir=initialdir, wildcard=_("SGF file")+" (*.sgf;*.SGF)|*.sgf;*.SGF", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
@@ -1615,12 +1618,13 @@ try:
 		dialog.Destroy()
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set("General","sgffolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			#Config.set("General","sgffolder",initialdir.encode("utf"))
+			Config.set("General","sgffolder",initialdir)
+			Config.write(open(config_file,"w",encoding='utf8'))
 		return filename
 
 	def open_rsgf_file(parent=None):
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		initialdir = Config.get("General","rsgffolder")
 		dialog = wx.FileDialog(None, _('Select a file'), defaultDir=initialdir, wildcard=_("Reviewed SGF file")+" (*.rsgf;*.RSGF)|*.rsgf;*.RSGF", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
@@ -1630,12 +1634,12 @@ try:
 		dialog.Destroy()
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set("General","rsgffolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			Config.set("General","rsgffolder",initialdir)#.encode("utf"))
+			Config.write(open(config_file,"w",encoding='utf8'))
 		return filename
 
 	def save_png_file(filename, parent=None):
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		initialdir = Config.get("General","pngfolder")
 		dialog = wx.FileDialog(None,_('Choose a filename'), defaultDir=initialdir,defaultFile=filename, wildcard=_("PNG image")+" (*.png;*.PNG)|*.png;*.PNG", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
@@ -1645,12 +1649,12 @@ try:
 		dialog.Destroy()
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set("General","pngfolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			Config.set("General","pngfolder",initialdir)#.encode("utf"))
+			Config.write(open(config_file,"w",encoding='utf8'))
 		return filename
 
 	def save_live_game(filename, parent=None):
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		initialdir = Config.get("General","livefolder")
 		dialog = wx.FileDialog(None,_('Choose a filename'), defaultDir=initialdir,defaultFile=filename, wildcard=_("SGF file")+" (*.sgf;*.SGF)|*.sgf;*.SGF", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
@@ -1660,56 +1664,56 @@ try:
 		dialog.Destroy()
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set("General","livefolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			Config.set("General","livefolder",initialdir)#.encode("utf"))
+			Config.write(open(config_file,"w",encoding='utf8'))
 		return filename
 
-except Exception, e:
-	print "Could not import the WX GUI library, please double check it is installed:"
+except Exception as e:
+	print ("Could not import the WX GUI library, please double check it is installed:")
 	log(e)
 	log("=> Falling back to tkFileDialog")
-	import tkFileDialog
+	import tkinter.filedialog
 	def open_sgf_file(parent=None):
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		initialdir = Config.get("General","sgffolder")
-		filename=tkFileDialog.askopenfilename(initialdir=initialdir, parent=parent,title=_("Select a file"),filetypes = [(_('SGF file'), '.sgf')])
+		filename=tkinter.filedialog.askopenfilename(initialdir=initialdir, parent=parent,title=_("Select a file"),filetypes = [(_('SGF file'), '.sgf')])
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set("General","sgffolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			Config.set("General","sgffolder",initialdir)#.encode("utf"))
+			Config.write(open(config_file,"w",encoding='utf8'))
 		return filename
 	def open_rsgf_file(parent=None):
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		initialdir = Config.get("General","rsgffolder")
-		filename=tkFileDialog.askopenfilename(initialdir=initialdir, parent=parent,title=_('Select a file'),filetypes = [(_('Reviewed SGF file'), '.rsgf')])
+		filename=tkinter.filedialog.askopenfilename(initialdir=initialdir, parent=parent,title=_('Select a file'),filetypes = [(_('Reviewed SGF file'), '.rsgf')])
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set("General","rsgffolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			Config.set("General","rsgffolder",initialdir)#.encode("utf"))
+			Config.write(open(config_file,"w",encoding='utf8'))
 		return filename
 
 	def save_png_file(filename, parent=None):
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		initialdir = Config.get("General","pngfolder")
 		filename=tkFileDialog.asksaveasfilename(initialdir=initialdir, parent=parent,title=_('Choose a filename'),filetypes = [(_('PNG image'), '.png')],initialfile=filename)
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set("General","pngfolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			Config.set("General","pngfolder",initialdir)#.encode("utf"))
+			Config.write(open(config_file,"w",encoding='utf8'))
 		return filename
 
 	def save_live_game(filename, parent=None):
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		initialdir = Config.get("General","livefolder")
 		filename=tkFileDialog.asksaveasfilename(initialdir=initialdir, parent=parent,title=_('Choose a filename'),filetypes = [(_('SGF file'), '.sgf')],initialfile=filename)
 		if filename:
 			initialdir=os.path.dirname(filename)
-			Config.set("General","livefolder",initialdir.encode("utf"))
-			Config.write(open(config_file,"w"))
+			Config.set("General","livefolder",initialdir)#.encode("utf"))
+			Config.write(open(config_file,"w",encoding='utf8'))
 		return filename
 		
 def opposite_rate(value):
@@ -1728,7 +1732,7 @@ position_data_formating["W"]=_("White to play, in the game, white played %s")
 
 def format_data(sgf_property,formating,value="",bot="Bot"):
 	txt=formating[sgf_property]
-	#print "formating["+sgf_property+"]",txt
+	#print ("formating["+sgf_property+"]",txt)
 	try:
 		if sgf_property in ("ES","CBM","BWWR"):
 			txt=txt%(bot,value)

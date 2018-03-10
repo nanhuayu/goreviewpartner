@@ -1,17 +1,17 @@
 # -*- coding:Utf-8 -*-
 
 import sys, os
-print "STDIN encoding:",sys.stdin.encoding
-print "STDOUT encoding:",sys.stdout.encoding
-print "STDERR encoding:",sys.stderr.encoding
-print "File system encoding:",sys.getfilesystemencoding()
+print ("STDIN encoding:",sys.stdin.encoding)
+print ("STDOUT encoding:",sys.stdout.encoding)
+print ("STDERR encoding:",sys.stderr.encoding)
+print ("File system encoding:",sys.getfilesystemencoding())
 
 try:
-	from Tkinter import * 
-except Exception, e:
-	print "Could not import the Tkinter librairy, please double check it is installed:"
-	print str(e)
-	raw_input()
+	from tkinter import * 
+except Exception as e:
+	print ("Could not import the Tkinter librairy, please double check it is installed:")
+	print (str(e))
+	input()
 	sys.exit()
 
 
@@ -21,11 +21,11 @@ from toolbox import *
 from toolbox import _
 
 log("Checking availability of config file")
-import ConfigParser
-Config = ConfigParser.ConfigParser()
+import configparser
+Config = configparser.ConfigParser()
 try:
 	Config.readfp(open(config_file))
-except Exception, e:
+except Exception as e:
 	show_error(_("Could not open the config file of Go Review Partner")+"\n"+str(e))
 	sys.exit()
 
@@ -128,7 +128,7 @@ def launch_settings():
 def refresh():
 	log("refreshing")
 	global review_bouton, analysis_bouton
-	Config = ConfigParser.ConfigParser()
+	Config = configparser.ConfigParser()
 	Config.read(config_file)
 	if len(get_available("AnalysisBot"))==0:
 		analysis_bouton.config(state='disabled')

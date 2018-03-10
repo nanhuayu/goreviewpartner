@@ -8,7 +8,7 @@ fuzzy=0.0
 
 from random import random,seed,choice
 
-from Tkinter import Canvas
+from tkinter import Canvas
 from toolbox import log
 
 class Goban(Canvas):
@@ -51,14 +51,14 @@ class Goban(Canvas):
 			x2=0-.5+k1*dim
 			y2=dim-1+.5
 			
-			self.wood.append([y1,(x1+x2)/2+random()-0.5,y2,(x1+x2)/2+random()-0.5,'#%02x%02x%02x' % (r0, g0, b0),(k1-k0)*dim])
+			self.wood.append([y1,(x1+x2)/2+random()-0.5,y2,(x1+x2)/2+random()-0.5,'#%02x%02x%02x' % (int(r0), int(g0), int(b0)),(k1-k0)*dim])
 			
 			k0=k1
 			k1+=0.005+random()*0.01
 			k1=min(1,k1)
 		t=10
-		self.black_stones=[[(25+choice(range(0,t)),8+choice(range(0,t/2)),8+choice(range(0,t/2))) for d in range(dim)] for dd in range(dim)]
-		self.white_stones=[[(25+choice(range(0,t)),8+choice(range(0,t/2)),8+choice(range(0,t/2))) for d in range(dim)] for dd in range(dim)]
+		self.black_stones=[[(25+choice(range(0,t)),8+choice(range(0,t//2)),8+choice(range(0,t//2))) for d in range(dim)] for dd in range(dim)]
+		self.white_stones=[[(25+choice(range(0,t)),8+choice(range(0,t//2)),8+choice(range(0,t//2))) for d in range(dim)] for dd in range(dim)]
 		for i in range(dim):
 			for j in range(dim):
 				a,b,c=self.black_stones[i][j]
@@ -141,7 +141,7 @@ class Goban(Canvas):
 		space=self.space
 		dim=self.dim
 		r,g,b=self.wood_color
-		bg='#%02x%02x%02x' % (r, g, b)
+		bg='#%02x%02x%02x' % (int(r), int(g), int(b))
 		for item in self.find_all():
 			if item not in self.no_redraw:
 				self.delete(item)

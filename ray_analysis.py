@@ -4,16 +4,16 @@ from gtp import gtp, GtpException
 import sys
 from gomill import sgf, sgf_moves
 from sys import exit,argv
-from Tkinter import *
+from tkinter import *
 import sys
 import os
 
-import ConfigParser
+import configparser
 
 
 import os
 import threading
-import ttk
+import tkinter.ttk as ttk
 
 from toolbox import *
 from toolbox import _
@@ -185,7 +185,7 @@ class Ray_gtp(gtp):
 			if move.lower()!="resign":
 				self.history.append(["b",move])
 			return move
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in genmove_black()\nanswer='"+answer+"'\n"+str(e))
 
 		
@@ -197,7 +197,7 @@ class Ray_gtp(gtp):
 			if move.lower()!="resign":
 				self.history.append(["w",move])
 			return move
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in genmove_white()\nanswer='"+answer+"'\n"+str(e))
 
 
@@ -218,7 +218,7 @@ class Ray_gtp(gtp):
 					if not self.place_white(move):
 						return False
 			return True			
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in undo()\n"+str(e))
 	
 	def get_ray_stat(self,color):
@@ -249,7 +249,7 @@ class RaySettings(Frame):
 		Frame.__init__(self,parent)
 		log("Initializing Ray setting interface")
 		
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		
 		bot="Ray"
@@ -333,7 +333,7 @@ class RaySettings(Frame):
 	
 	def save(self):
 		log("Saving Ray settings")
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		
 		bot="Ray"
@@ -393,7 +393,7 @@ if __name__ == "__main__":
 	else:
 		try:
 			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation="])
-		except Exception, e:
+		except Exception as e:
 			show_error(str(e)+"\n"+usage)
 			sys.exit()
 		

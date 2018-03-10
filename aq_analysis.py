@@ -7,22 +7,22 @@ from gomill import sgf, sgf_moves
 
 from sys import exit,argv
 
-from Tkinter import *
+from tkinter import *
 
 import sys
 import os
 
-import ConfigParser
+import configparser
 
 from time import sleep
 import os
 import threading
-import ttk
+import tkinter.ttk as ttk
 
 from toolbox import *
 from toolbox import _
 
-import tkMessageBox
+import tkinter.messagebox
 
 
 class AQAnalysis():
@@ -163,7 +163,7 @@ class LiveAnalysis(AQAnalysis,LiveAnalysisBase):
 
 import ntpath
 import subprocess
-import threading, Queue
+import threading, queue
 
 class AQ_gtp(gtp):
 
@@ -179,7 +179,7 @@ class AQ_gtp(gtp):
 		self.process=subprocess.Popen(command,cwd=aq_working_directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.size=0
 
-		self.stderr_queue=Queue.Queue()
+		self.stderr_queue=queue.Queue()
 
 		threading.Thread(target=self.consume_stderr).start()
 
@@ -210,7 +210,7 @@ class AQ_gtp(gtp):
 			if move.lower()!="resign":
 				self.history.append(["b",move])
 			return move
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in genmove_black()\nanswer='"+answer+"'\n"+str(e))
 
 
@@ -222,7 +222,7 @@ class AQ_gtp(gtp):
 			if move.lower()!="resign":
 				self.history.append(["w",move])
 			return move
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in genmove_white()\nanswer='"+answer+"'\n"+str(e))
 
 
@@ -243,7 +243,7 @@ class AQ_gtp(gtp):
 					if not self.place_white(move):
 						return False
 			return True
-		except Exception, e:
+		except Exception as e:
 			raise GtpException("GtpException in undo()\n"+str(e))
 
 
@@ -357,7 +357,7 @@ class AQSettings(Frame):
 	def __init__(self,parent):
 		Frame.__init__(self,parent)
 		log("Initializing AQ setting interface")
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 
 		bot="AQ"
@@ -445,7 +445,7 @@ class AQSettings(Frame):
 
 	def save(self):
 		log("Saving AQ settings")
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 
 		bot="AQ"
@@ -506,7 +506,7 @@ if __name__ == "__main__":
 	else:
 		try:
 			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation="])
-		except Exception, e:
+		except Exception as e:
 			show_error(str(e)+"\n"+usage)
 			sys.exit()
 

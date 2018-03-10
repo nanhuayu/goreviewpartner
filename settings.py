@@ -1,6 +1,6 @@
 
-from Tkinter import *
-import ConfigParser
+from tkinter import *
+import configparser
 from gnugo_analysis import GnuGoSettings
 from ray_analysis import RaySettings
 from leela_analysis import LeelaSettings
@@ -31,7 +31,7 @@ class OpenSettings(Toplevel):
 	def display_GRP_settings(self,top_setting_frame):
 		
 		log("Initializing GRP setting interface")
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)		
 		
 		setting_frame=Frame(top_setting_frame)
@@ -157,9 +157,9 @@ class OpenSettings(Toplevel):
 	def save(self):
 		global lang, translations
 		log("Saving GRP settings")
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
-		for lang2, language in available_translations.iteritems():
+		for lang2, language in available_translations.items():
 			if language==self.Language.get():
 				if lang!=lang2:
 					Config.set("General","Language",lang2)

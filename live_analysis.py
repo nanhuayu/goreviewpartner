@@ -5,9 +5,12 @@ from toolbox import _
 from goban import *
 import sys
 from datetime import datetime
-from Tkinter import *
+from tkinter import *
 from threading import Lock
 import leela_analysis,gnugo_analysis,ray_analysis,aq_analysis,leela_zero_analysis
+import queue
+
+import configparser
 
 #bots_for_analysis=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
 bots_for_playing=[leela_analysis.Leela,aq_analysis.AQ,ray_analysis.Ray,gnugo_analysis.GnuGo,leela_zero_analysis.LeelaZero]
@@ -20,7 +23,7 @@ class LiveAnalysisLauncher(Frame):
 		root = self
 		root.parent.title('GoReviewPartner')
 		
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		
 		self.pack(padx=10, pady=10)
@@ -30,7 +33,8 @@ class LiveAnalysisLauncher(Frame):
 		self.analysis_bots_names=[bot['name']+value[bot['profile']] for bot in get_available("LiveAnalysisBot")]
 		Label(self,text=_("Bot to use for analysis:")).grid(row=row,column=1,sticky=W)
 		self.bot_selection=StringVar()	
-		apply(OptionMenu,(self,self.bot_selection)+tuple(self.analysis_bots_names)).grid(row=row,column=2,sticky=W)
+		#apply(OptionMenu,(self,self.bot_selection)+tuple(self.analysis_bots_names)).grid(row=row,column=2,sticky=W)
+		OptionMenu(self,self.bot_selection,*tuple(self.analysis_bots_names)).grid(row=row,column=2,sticky=W)
 		
 		self.bots_names=[bot['name']+value[bot['profile']] for bot in get_available("LivePlayerBot")]
 		
@@ -43,7 +47,8 @@ class LiveAnalysisLauncher(Frame):
 		self.black_selection_wrapper=Frame(self)
 		self.black_selection_wrapper.grid(row=row,column=2,sticky=W)
 		self.black_options=[_("Human"),_("Bot used for analysis")]+self.bots_names
-		self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
+		#self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
+		self.black_menu=OptionMenu(self.black_selection_wrapper,self.black_selection,*tuple(self.black_options))
 		self.black_menu.pack()
 
 		
@@ -56,7 +61,8 @@ class LiveAnalysisLauncher(Frame):
 		self.white_selection_wrapper=Frame(self)
 		self.white_selection_wrapper.grid(row=row,column=2,sticky=W)
 		self.white_options=[_("Human"),_("Bot used for analysis")]+self.bots_names
-		self.white_menu=apply(OptionMenu,(self.white_selection_wrapper,self.white_selection)+tuple(self.white_options))
+		#self.white_menu=apply(OptionMenu,(self.white_selection_wrapper,self.white_selection)+tuple(self.white_options))
+		self.white_menu=OptionMenu(self.white_selection_wrapper,self.white_selection,*tuple(self.white_options))
 		self.white_menu.pack()
 		
 		row+=1
@@ -186,9 +192,9 @@ class LiveAnalysisLauncher(Frame):
 		elif b==1:
 			black="analyser"
 		else:
-			print "=========="
-			print bots.keys()
-			print "=========="
+			print ("==========")
+			print (bots.keys())
+			print ("==========")
 			black=bots[self.black_selection.get()]
 		
 		w=self.selected_white_index()
@@ -201,22 +207,22 @@ class LiveAnalysisLauncher(Frame):
 		else:
 			white=bots[self.white_selection.get()]
 		
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		
 		komi=float(self.komi.get())
 		dim=int(self.dim.get())
 		handicap=int(self.handicap.get())
 		
-		Config.set("Live","komi",komi)
-		Config.set("Live","size",dim)
-		Config.set("Live","handicap",handicap)
+		Config.set("Live","komi",str(komi))
+		Config.set("Live","size",str(dim))
+		Config.set("Live","handicap",str(handicap))
 		
-		Config.set("Live","analyser",self.bot_selection.get().encode("utf"))
-		Config.set("Live","black",self.black_selection.get().encode("utf"))
-		Config.set("Live","white",self.white_selection.get().encode("utf"))
+		Config.set("Live","analyser",self.bot_selection.get())#.encode("utf"))
+		Config.set("Live","black",self.black_selection.get())#.encode("utf"))
+		Config.set("Live","white",self.white_selection.get())#.encode("utf"))
 		
-		Config.write(open(config_file,"w"))
+		Config.write(open(config_file,"w",encoding='utf8'))
 		 
 		filename=os.path.join(Config.get("General","livefolder"),self.filename.get())
 		
@@ -226,14 +232,16 @@ class LiveAnalysisLauncher(Frame):
 	def selected_black_index(self):
 		i=0
 		for bo in self.black_options:
-			if bo.decode("utf")==self.black_selection.get():
+			#if bo.decode("utf")==self.black_selection.get():
+			if bo==self.black_selection.get():
 				return i
 			i+=1
 
 	def selected_white_index(self):
 		i=0
 		for wo in self.white_options:
-			if wo.decode("utf")==self.white_selection.get():
+			#if wo.decode("utf")==self.white_selection.get():
+			if wo==self.white_selection.get():
 				return i
 			i+=1
 
@@ -241,14 +249,16 @@ class LiveAnalysisLauncher(Frame):
 		i=self.selected_black_index()
 		self.black_options=[_("Human"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names
 		self.black_menu.pack_forget()
-		self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
+		#self.black_menu=apply(OptionMenu,(self.black_selection_wrapper,self.black_selection)+tuple(self.black_options))
+		self.black_menu=OptionMenu(self.black_selection_wrapper,self.black_selection,*tuple(self.black_options))
 		self.black_menu.pack()
 		self.black_selection.set(self.black_options[i])
 
 		j=self.selected_white_index()
 		self.white_options=[_("Human"),_("Bot used for analysis")+": "+self.bot_selection.get()]+self.bots_names
 		self.white_menu.pack_forget()
-		self.white_menu=apply(OptionMenu,(self.white_selection_wrapper,self.white_selection)+tuple(self.white_options))
+		#self.white_menu=apply(OptionMenu,(self.white_selection_wrapper,self.white_selection)+tuple(self.white_options))
+		self.white_menu=OptionMenu(self.white_selection_wrapper,self.white_selection,*tuple(self.white_options))
 		self.white_menu.pack()
 		self.white_selection.set(self.white_options[j])
 		
@@ -321,7 +331,7 @@ class LiveAnalysis():
 		self.initialize()
 		
 	def initialize(self):
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		
 
@@ -402,7 +412,7 @@ class LiveAnalysis():
 		goban.display(grid,markup)
 		self.goban.bind("<Configure>",self.redraw)
 		popup.focus()
-		self.display_queue=Queue.Queue(1)
+		self.display_queue=queue.Queue(1)
 		self.locked=False
 		
 		row=1
@@ -540,7 +550,7 @@ class LiveAnalysis():
 		screen_width = app.winfo_screenwidth()
 		screen_height = app.winfo_screenheight()
 		
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read("config.ini")
 		
 		display_factor=.5
@@ -606,7 +616,7 @@ class LiveAnalysis():
 				else:
 					self.g.get_root().set("AB",self.handicap_stones)
 					#write_sgf(self.filename,self.g.serialise())
-					print self.handicap_stones
+					print (self.handicap_stones)
 					if type(self.black)!=type("abc"):
 						self.black.set_free_handicap([ij2gtp([i,j]) for i,j in self.handicap_stones])
 					if type(self.white)!=type("abc"):
@@ -1039,7 +1049,7 @@ class LiveAnalysis():
 		i,j=self.goban.xy2ij(event.x,event.y)
 		color=self.next_color
 		if 0 <= i <= dim-1 and 0 <= j <= dim-1:
-			print "<click>"
+			print ("<click>")
 			#inside the grid
 			#what is under the pointer ?
 			

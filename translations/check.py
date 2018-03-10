@@ -26,7 +26,7 @@ def get_sentences(lang,check_for_double=False):
 			entry=line[len(key)+2:-1]
 			if check_for_double:
 				if entry in sentences:
-					print "[Warning] double entries for:",entry
+					print ("[Warning] double entries for:",entry)
 			sentences.append(entry)
 	return sentences
 
@@ -43,34 +43,34 @@ available_translations=["fr","de"]
 from sys import argv
 if len(argv)==2:
 	if argv[1] in available_translations:
-		print "Selection of lang=",argv[1]
+		print ("Selection of lang=",argv[1])
 		available_translations=[argv[1]]
 
 for lang in available_translations:
-	print
-	print "============= Checking language="+lang,"============="
+	print ()
+	print ("============= Checking language="+lang,"=============")
 	translations=get_sentences(lang)
-	print
-	print "==== English sentences missing in",lang+".po ===="
+	print ()
+	print ("==== English sentences missing in",lang+".po ====")
 	found=False
 	for sentence in english_sentences:
 		if sentence:
 			if sentence not in translations:
-				print 'msgid "'+sentence+'"'
-				print 'msgstr ""'
-				print
+				print ('msgid "'+sentence+'"')
+				print ('msgstr ""')
+				print ()
 				found=True
 	if not found:
-		print "(none)"
+		print ("(none)")
 	
-	print
-	print "==== Extra sentences in",lang+".po ===="
+	print ()
+	print ("==== Extra sentences in",lang+".po ====")
 	found=False
 	for sentence in translations:
 		if sentence:
 			if sentence not in english_sentences:
-				print sentence
+				print (sentence)
 				found=True
 	if not found:
-		print "(none)"
+		print ("(none)")
 	

@@ -4,21 +4,21 @@ from gtp import gtp, GtpException
 import sys
 from gomill import sgf, sgf_moves
 from sys import exit,argv
-from Tkinter import *
+from tkinter import *
 import sys
 import os
 
-import ConfigParser
+import configparser
 
 from time import sleep
 import os
 import threading
-import ttk
+import tkinter.ttk as ttk
 
 from toolbox import *
 from toolbox import _
 
-import tkMessageBox
+import tkinter.messagebox
 
 
 class LeelaAnalysis():
@@ -234,7 +234,7 @@ def leela_starting_procedure(sgf_g,profile="slow",silentfail=False):
 	elif profile=="fast":
 		timepermove_entry="FastTimePerMove"
 
-	Config = ConfigParser.ConfigParser()
+	Config = configparser.ConfigParser()
 	Config.read(config_file)
 
 	leela=bot_starting_procedure("Leela","Leela",Leela_gtp,sgf_g,profile,silentfail)
@@ -413,7 +413,7 @@ class LeelaSettings(Frame):
 	def initialize(self):
 		bot=self.name
 		log("Initializing "+bot+" setting interface")
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		
 		bot=self.name
@@ -511,7 +511,7 @@ class LeelaSettings(Frame):
 	def save(self):
 		bot=self.name
 		log("Saving "+bot+" settings")
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		
 		Config.set(bot,"SlowCommand",self.SlowCommand.get())
@@ -574,7 +574,7 @@ if __name__ == "__main__":
 	else:
 		try:
 			parameters=getopt.getopt(argv[1:], '', ['no-gui','range=', 'color=', 'komi=',"variation="])
-		except Exception, e:
+		except Exception as e:
 			show_error(str(e)+"\n"+usage)
 			sys.exit()
 		

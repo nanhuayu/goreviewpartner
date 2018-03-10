@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from Tkinter import *
-from ScrolledText import *
-import tkFont
+from tkinter import *
+from tkinter.scrolledtext import *
+import tkinter.font
 import sys,time
 from functools import partial
 from toolbox import *
@@ -11,9 +11,9 @@ from toolbox import _
 import os
 
 from gtp import gtp
-import ConfigParser
+import configparser
 
-import threading, Queue
+import threading, queue
 
 import mss
 import mss.tools
@@ -59,7 +59,7 @@ class OpenChart():
 		log("done")
 
 	def initialize(self):
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		
 		popup_width=self.parent.winfo_width()
@@ -67,7 +67,7 @@ class OpenChart():
 		
 		self.popup=Toplevel(self.parent)
 		popup=self.popup
-		popup.geometry(str(popup_width)+'x'+str(popup_height))
+		popup.geometry('{}x{}'.format(int(popup_width),int(popup_height)))
 		bg=popup.cget("background")
 		#popup.configure(background=bg)
 		
@@ -145,7 +145,8 @@ class OpenChart():
 						available_graphs.append(_("White Value Network win rate delta"))
 						break
 		
-		self.graph_selection=apply(OptionMenu,(top_frame,self.graph_mode)+tuple(available_graphs))
+		#self.graph_selection=apply(OptionMenu,(top_frame,self.graph_mode)+tuple(available_graphs))
+		self.graph_selection=OptionMenu(top_frame,self.graph_mode,*tuple(available_graphs))
 		self.graph_selection.pack(side=LEFT, padx=5)
 		self.graph_mode.trace("w", lambda a,b,c: self.display())
 		if not self.graph_mode.get():
@@ -243,21 +244,36 @@ class OpenChart():
 		x1=x0+space
 		y1=border
 		yellow_bar=self.chart.create_rectangle(x0, y00, x1, y1, fill='#FFFF00',outline='#FFFF00')
-		
+
+##		mode=_(self.graph_mode.get())
+##		if mode in (_("Black win rate delta").decode("utf"),_("White win rate delta").decode("utf")):
+##			moves=self.display_winrate_delta(border,height,width)
+##		elif mode==_("Win rate").decode("utf"):
+##			moves=self.display_winrate_graph(border,height,width,lpix)
+##		elif mode==_("Score estimation").decode("utf"):
+##			moves=self.display_score_graph(border,height,width,lpix)
+##		elif mode==_("Monte Carlo win rate").decode("utf"):
+##			moves=self.display_monte_carlo_winrate_graph(border,height,width,lpix)
+##		elif mode==_("Value Network win rate").decode("utf"):
+##			moves=self.display_value_network_winrate_graph(border,height,width,lpix)
+##		elif mode in (_("Black Monte Carlo win rate delta").decode("utf"),_("White Monte Carlo win rate delta").decode("utf")):
+##			moves=self.display_monte_carlo_delta(border,height,width)
+##		elif mode in (_("Black Value Network win rate delta").decode("utf"),_("White Value Network win rate delta").decode("utf")):
+##			moves=self.display_value_network_delta(border,height,width)
 		mode=_(self.graph_mode.get())
-		if mode in (_("Black win rate delta").decode("utf"),_("White win rate delta").decode("utf")):
+		if mode in ("Black win rate delta","White win rate delta"):
 			moves=self.display_winrate_delta(border,height,width)
-		elif mode==_("Win rate").decode("utf"):
+		elif mode=="Win rate":
 			moves=self.display_winrate_graph(border,height,width,lpix)
-		elif mode==_("Score estimation").decode("utf"):
+		elif mode=="Score estimation":
 			moves=self.display_score_graph(border,height,width,lpix)
-		elif mode==_("Monte Carlo win rate").decode("utf"):
+		elif mode=="Monte Carlo win rate":
 			moves=self.display_monte_carlo_winrate_graph(border,height,width,lpix)
-		elif mode==_("Value Network win rate").decode("utf"):
+		elif mode=="Value Network win rate":
 			moves=self.display_value_network_winrate_graph(border,height,width,lpix)
-		elif mode in (_("Black Monte Carlo win rate delta").decode("utf"),_("White Monte Carlo win rate delta").decode("utf")):
+		elif mode in ("Black Monte Carlo win rate delta","White Monte Carlo win rate delta"):
 			moves=self.display_monte_carlo_delta(border,height,width)
-		elif mode in (_("Black Value Network win rate delta").decode("utf"),_("White Value Network win rate delta").decode("utf")):
+		elif mode in ("Black Value Network win rate delta","White Value Network win rate delta"):
 			moves=self.display_value_network_delta(border,height,width)
 		
 		self.display_horizontal_graduation(moves,height,width,border,lpix)
@@ -297,7 +313,7 @@ class OpenChart():
 				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
 				
-				if delta<>0:
+				if delta:
 					y2=y1-delta*(height-2*border)/100.
 					if delta<0:
 						red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
@@ -354,7 +370,7 @@ class OpenChart():
 				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
 				
-				if delta<>0:
+				if delta:
 					y2=y1-delta*(height-2*border)/100.
 					if delta<0:
 						red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
@@ -411,7 +427,7 @@ class OpenChart():
 				self.chart.tag_bind(grey_bar, "<Leave>", self.clear_status)
 				self.chart.tag_bind(grey_bar, "<Button-1>",partial(self.goto_move,move=move))
 				
-				if delta<>0:
+				if delta:
 					y2=y1-delta*(height-2*border)/100.
 					if delta<0:
 						red_bar=self.chart.create_rectangle(x0, y1, x1, y2, fill='red',outline='#aa0000')
@@ -806,8 +822,8 @@ class OpenMove():
 						if len(self.menu_bots):
 							self.selected_bot.set(self.menu_bots.keys()[0])
 							self.selected_bot=StringVar()
-							#self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
-							self.menu=apply(OptionMenu, (self.menu_wrapper, self.selected_bot) + tuple(self.menu_bots.keys()))
+							#self.menu=apply(OptionMenu, (self.menu_wrapper, self.selected_bot) + tuple(self.menu_bots.keys()))
+							self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
 							self.menu.pack(fill=BOTH,expand=1)
 						else:
 							self.menu.config(state='disabled')
@@ -918,7 +934,7 @@ class OpenMove():
 		self.unlock()
 	
 	def initialize(self):
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		
 		sgf=self.sgf
@@ -963,15 +979,15 @@ class OpenMove():
 			
 			row+=1
 			self.selected_bot=StringVar()
-			self.selected_bot.set(self.menu_bots.keys()[0])
+			self.selected_bot.set(list(self.menu_bots.keys())[0])
 			
 			self.menu_wrapper=Frame(panel)
 			self.menu_wrapper.grid(row=row,column=0,sticky=E+W)
 			self.menu_wrapper.bind("<Enter>",lambda e: self.set_status(_("Select a bot.")))
 			self.menu_wrapper.bind("<Leave>",lambda e: self.clear_status())
 			
-			#self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
-			self.menu=apply(OptionMenu, (self.menu_wrapper, self.selected_bot) + tuple(self.menu_bots.keys()))
+			#self.menu=apply(OptionMenu, (self.menu_wrapper, self.selected_bot) + tuple(self.menu_bots.keys()))
+			self.menu=OptionMenu(self.menu_wrapper,self.selected_bot,*tuple(self.menu_bots.keys()))
 			self.menu.pack(fill=BOTH,expand=1)
 			
 			row+=1
@@ -1105,7 +1121,7 @@ class OpenMove():
 		self.goban.bind("<Configure>",self.redraw)
 		popup.focus()
 		
-		self.display_queue=Queue.Queue(1)
+		self.display_queue=queue.Queue(1)
 		self.parent.after(100,self.wait_for_display)
 	
 	def wait_for_display(self):
@@ -1159,7 +1175,7 @@ class DualView(Frame):
 		self.goban_size=goban_size
 		
 		global Config, goban
-		Config = ConfigParser.ConfigParser()
+		Config = configparser.ConfigParser()
 		Config.read(config_file)
 		goban.fuzzy=float(Config.get("Review", "FuzzyStonePlacement"))
 		self.variation_color_mode=Config.get("Review", "VariationsColoring")
@@ -1995,7 +2011,7 @@ class DualView(Frame):
 		
 		self.data_for_chart=self.prepare_data_for_chart()
 		for data in self.data_for_chart:
-			if data<>None:
+			if data != None:
 				self.charts_button=Button(self, text=_('Graphs'))
 				self.charts_button.bind('<Button-1>', self.show_graphs)
 				self.charts_button.grid(column=3,row=2,sticky=E)
@@ -2037,7 +2053,7 @@ class DualView(Frame):
 		
 		Label(self,text='   ',background=bg).grid(column=4,row=row+1)
 		
-		police = tkFont.nametofont("TkFixedFont")
+		police = tkinter.font.nametofont("TkFixedFont")
 		lpix = police.measure("a")
 		self.lpix=lpix
 		self.comment_box1=ScrolledText(self,font=police,wrap="word",width=int(self.goban_size/lpix-2),height=5,foreground='black')
@@ -2124,7 +2140,7 @@ import goban
 
 if __name__ == "__main__":
 	
-	Config = ConfigParser.ConfigParser()
+	Config = configparser.ConfigParser()
 	Config.read(config_file)
 	
 	if len(sys.argv)==1:
